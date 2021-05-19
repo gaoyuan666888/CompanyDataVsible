@@ -1,0 +1,352 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>查询用户</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
+    <link href="{% static 'css/plugins/bootstrap-table/bootstrap-table.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/animate.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+
+
+</head>
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <!-- Panel Other -->
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>项目信息</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-wrench"></i>
+                </a>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <div class="row row-lg">
+                <div class="col-sm-12">
+                    <!-- Example Events -->
+                    <div class="example-wrap">
+                        <div class="example">
+                            <div class="btn-group hidden-xs" id="exampleTableEventsToolbar" role="group">
+                                <form role="form" class="form-inline">
+                                    <div class="form-group">
+                                        <label for="cust_name" class="sr-only">姓名</label>
+                                        <input type="text" placeholder="姓名" id="cust_name"
+                                               class="form-control">
+                                    </div>
+                                    <div class="form-group form-group-sm">
+                                        <label for="call_type" class="sr-only">区部</label>
+                                        <select id="call_type" class="form-control">
+                                            <option value="群呼">群呼</option>
+                                            <option value="自拨">自拨</option>
+                                            <option value="手拨">手拨</option>
+                                         </select> 
+                                    </div>
+                                    <div class="form-group form-group-sm">
+                                        <label for="business_type" class="sr-only">业务类型</label>
+                                        <select type="text" id="business_type" class="form-control">
+                                            <option value="">业务类型选择</option>
+                                            {% for item in business_data %}
+                                            <option value="{{ item }}" hassubinfo="true">{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group form-group-sm">
+                                        <label for="group" class="sr-only">组别</label>
+                                        <select type="text" id="group" class="form-control">
+                                            <option value="">分组选择</option>
+                                            {% for value in group_data %}
+                                            <option value="{{ value }}" hassubinfo="true">{{ value }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group form-group-sm">
+                                        <div class="input-group">
+                                            <label class="input-group-addon">开始时间</label>
+                                            <input type="datetime-local" class="form-control"
+                                                   id="datetime-start">
+                                            <span class="input-group-addon">
+                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                  </span>
+
+                                            <span class="input-group-addon">结束时间</span>
+                                            <input type="datetime-local" class="form-control"
+                                                   id="datetime-stop">
+                                            <span class="input-group-addon">
+                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                  </span>
+                                        </div>
+                                        <button class="btn btn-default" type="button" class="form-control"
+                                                onclick="btn_query_click()">查询
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <table id="exampleTableEvents" data-height="450" data-mobile-responsive="true">
+                            </table>
+                        </div>
+                    </div>
+                    <!-- End Example Events -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Panel Other -->
+</div>
+<!-- 全局js -->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+<!-- 自定义js -->
+{#    <script src="../static/js/content.js"></script>#}
+<script src="{% static 'js/content.js' %}"></script>
+
+
+<!-- Bootstrap table -->
+<script src="{% static 'js/plugins/bootstrap-table/bootstrap-table.min.js' %}"></script>
+<script src="{% static 'js/plugins/bootstrap-table/bootstrap-table-export.js' %}"></script>
+<script src="{% static 'js/plugins/bootstrap-table/tableExport.js' %}"></script>
+<script src="{% static 'js/plugins/bootstrap-table/bootstrap-table-mobile.min.js' %}"></script>
+<script src="{% static 'js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'js/moment.min.js' %}"></script>
+
+<!-- Peity -->
+<script type="text/javascript">
+
+    $(function () {
+        $('#exampleTableEvents').bootstrapTable({
+            /* url: "queryDev.json", */
+            url: "/job/getJobsInfo",
+            method: "get",
+            search: false,
+            cache: false,
+            clickToSelect: true,
+            pagination: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pageNumber: 1,
+            pageSize: 10,
+            pageList: [10, 50, 'all'],
+            sidePagination: 'server',
+            iconSize: 'outline',
+            idField: "devId",
+            toolbar: '#exampleTableEventsToolbar',
+            columns: [{
+                field: 'state',
+                radio: true,
+            }, {
+                field: 'call_type',
+                title: '区部',
+                align: "center",
+                halign: "center",
+            },
+                {
+                field: 'business_type',
+                title: '业务类型',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'cust_name',
+                title: '姓名',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'group',
+                title: '组别',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'fenan_num',
+                title: '分案户数',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'fa_sum_money',
+                title: '分案总金额',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'ht_case',
+                title: '总回退户数',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'ht_money',
+                title: '总回退金额',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'pass_sum',
+                title: '接通量',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'call_sum',
+                title: '拨打量',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'call_time',
+                title: '通话时长(分)',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'pass_rate',
+                title: '接通率',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'all_pass',
+                title: '群呼接通量',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'all_sum',
+                title: '群呼拨打量',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'all_time',
+                title: '群呼通话时长(分)',
+                align: "center",
+                halign: "center"
+            }, {
+                field: 'update_time',
+                title: '数据日期',
+                align: "center",
+                halign: "center"
+            }
+
+            ],
+            queryParams: function (params) {
+                //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                var temp = {
+                    rows: params.limit,                         //页面大小
+                    page: (params.offset / params.limit) + 1,   //页码
+
+                    call_type: $("#call_type").val(),
+                    cust_name: $("#cust_name").val(),
+                    group: $("#group").val(),
+                    business_type: $("#business_type").val(),
+                    {#fenan_num: $("#fenan_num").val(),#}
+                    {#post_type: $("#postType").val(),#}
+                    start_time: $("#datetime-start").val(),
+                    stop_time: $("#datetime-stop").val(),
+                    {#call:$("#call").val(),#}
+                };
+                return temp;
+            },
+            icons: {
+                refresh: 'glyphicon-repeat',
+                toggle: 'glyphicon-list-alt',
+                columns: 'glyphicon-list',
+                export: 'glyphicon-export icon-share'
+            },
+
+            exportDataType: 'all',//basic', 'all', 'selected'.
+            exportOptions: {
+                {#ignoreColumn: [0, 1],  //忽略某一列的索引#}
+                fileName: '数据统计报表',  //文件名称设置
+                worksheetName: 'sheet1',  //表格工作区名称
+                tableName: '数据',
+                excelstyles: ['background-color', 'color', 'font-size', 'font-weight', 'border-top']
+            },
+            showExport: true,  //是否显示导出按钮
+            buttonsAlign: "right",  //按钮位置
+            exportTypes: ['excel', 'xlsx', 'csv'],  //导出文件类型
+
+
+        });
+    });
+
+    function yongHuBangDing(value, row, index) {
+        return "<a href='javascript:;' class='btn btn-xs green' onclick=\"checkCompany('" + row.number_id + "')\">" + value + "</a>";
+    }
+
+    function btn_query_click() {
+        $('#exampleTableEvents').bootstrapTable('selectPage', 1);
+        $('#exampleTableEvents').bootstrapTable('refresh');
+
+//           console.log($("#city").val());
+//           console.log($("#job_experience").val());
+//           console.log($("#education").val());
+//           console.log($("#postType").val());
+    }
+
+    $(selector).datetimepicker({
+        locale: 'zh-CN'
+        , format: "YYYY-MM-DD"
+    });
+    $('[data-datetime-picker]').each(function () {
+        var $this = $(this);
+        var format = $this.attr('data-datetime-picker');
+        {#$('#datetime-start').data("DateTimePicker").show()#}
+        $this.datetimepicker({
+            locale: 'zh-CN'
+            , format: format
+        })
+    });
+
+    $(document).ready(function () {
+        var time = new Date();
+        var day = ("0" + time.getDate()).slice(-2);
+        var month = ("0" + (time.getMonth() + 1)).slice(-2);
+        var today = time.getFullYear() + "-" + (month) + "-" + (day);
+        console.log(today);
+        $('#datetime-start').val(today);
+        {#$('#datetime-stop').val(today);#}
+
+    });
+
+    function checkCompany(numberId) {
+        $.ajax({
+            async: true,    //表示请求是否异步处理
+            type: "get",    //请求类型
+            url: "/job/companyInfo",//请求的 URL地址
+            dataType: "json",//返回的数据类型
+            data: {"numberId": numberId},
+            success: function (datas) {
+                console.log(datas);
+                document.getElementById("companyImg").src = datas[0].logo;
+                document.getElementById("companyName").href = datas[0].website;
+                document.getElementById("companyName").innerHTML = datas[0].company;
+                document.getElementById("companyIndu").innerHTML = datas[0].industry;
+                document.getElementById("companyScale").innerHTML = datas[0].scale;
+
+                $("#myModal2").modal({
+                    backdrop: "static", // 相当于data-backdrop
+                    keyboard: false, // 相当于data-keyboard
+                    show: true  // 相当于data-show
+                });
+            },
+            error: function (data) {
+
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
